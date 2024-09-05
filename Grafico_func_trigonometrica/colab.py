@@ -12,8 +12,14 @@ from IPython.display import Image, clear_output, display
 # b_2  Fase
 # b_3  Deslocamento Vertical
 #####################################
+# Docs :
+# FuncAnimation :      https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html
+# subplots :           https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
+# Ultima alteração :   02-09-2024
+# Repo :               https://github.com/chEfInHO0/Projetos-Faculdade/tree/main/Grafico_func_trigonometrica
+#####################################
 
-global animation_frame, x_signal
+global animation_frame, x_signal      # Apenas para formatação de saida
 
 ###############################################################################
 ###############################################################################
@@ -27,22 +33,25 @@ MIN_FRAMES = 1          # Minimo 1, deve ser menor que MAX_FRAMES
 MAX_FRAMES = 150        # Quanto maior, mais tempo a animação
 INTERVAL = 25           # intervalo de atualização de um frame a outro (Recomendado: Max 50)
 FRAME_DIV = 10          # FRAME_DIV deve ser superior a 0, diminui a velocidade da animação que usa o frame para mudar o valor (Melhor performance)
+AUX_DIV = 5             # No caso da tangente o gráfico pode ficar bem inviável para a visualização então vamos adicionar uma variavel extra para controle
+
 
 PI,SEN,COS,TG = np.pi, np.sin, np.cos, np.tan # declarando as constantes trigonométricas
+
 
 SLICES = 5000           # Não aumentar
 
 FIG_X_SIZE = 10         # tamanho do gráfico plotado
 FIG_Y_SIZE = 5          # tamanho do gráfico plotado
 
-MIN_LINSPACE = -10 * PI # Inicio do domínio
-MAX_LINSPACE = 10 * PI  # Final do domínio
+MIN_LINSPACE = -4 * PI # Inicio do domínio
+MAX_LINSPACE = 4 * PI  # Final do domínio
 
-MIN_X_LIM = -2 * PI     # Inicio do grafico do eixo X
-MAX_X_LIM = 2 * PI      # Final do grafico do eixo X
+MIN_X_LIM = -4 * PI     # Inicio do grafico do eixo X
+MAX_X_LIM = 4 * PI      # Final do grafico do eixo X
 
 MIN_Y_LIM = -40         # Inicio do grafico do eixo Y
-MAX_Y_LIM = 40          # Final do grafico do eixo Y
+MAX_Y_LIM = 40         # Final do grafico do eixo Y
 
 def ask_input(msg: str, input_msg: str, error_msg: str, input_range: list, mult_choice=False):
     """
@@ -83,7 +92,7 @@ def chart_config():
     # Configuração inicial do gráfico
     fig, ax = plt.subplots(figsize=(FIG_X_SIZE, FIG_Y_SIZE))
     x = np.linspace(MIN_LINSPACE, MAX_LINSPACE, SLICES)  # Domínio
-
+    print(x)
     # Criação da linha inicial no gráfico
     line, = ax.plot(x, SEN(x))
 
@@ -109,7 +118,7 @@ def label_chart(chart_name: str, opt: list):
     opt:
     """
     labels = ["Amplitude(b_0) variando",
-              "Frequência(b_1) variando",
+              "Frequência(b_1) variando" if chart_name != 'Tg' else f"Frequência(b_1) variando (velocidade reduzida em {AUX_DIV}x)" ,
               "Fase(b_2) variando",
               "Deslocamento(b_3) vertical alterando"]
     label_selected = f'{chart_name}: '
@@ -131,11 +140,11 @@ def plot_sin_dynamic(opt, animation_type):
             1: (frame / FRAME_DIV)}
         animation_step = possible_frame[animation_type]
         # print(animation_step) evita flood de dados no output do colab
-        x_signal = 'X positivo' if animation_type > 0 else 'X negativo'
+        x_signal = 'positivo' if animation_type > 0 else 'negativo'
         b_0 = animation_step if 1 in opt else 1
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
-        b_3 = animation_step if 4 in opt else 1
+        b_3 = animation_step if 4 in opt else 0
         y = (b_0 * SEN((b_1 * x) + b_2)) + b_3  # SENO  a * sen((b*x)*c)+d
         line.set_ydata(y)
         return line,
@@ -165,11 +174,11 @@ def plot_cos_dynamic(opt, animation_type):
             1: (frame / FRAME_DIV)}
         animation_step = possible_frame[animation_type]
         # print(animation_step) evita flood de dados no output do colab
-        x_signal = 'X positivo' if animation_type > 0 else 'X negativo'
+        x_signal = 'positivo' if animation_type > 0 else 'negativo'
         b_0 = animation_step if 1 in opt else 1
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
-        b_3 = animation_step if 4 in opt else 1
+        b_3 = animation_step if 4 in opt else 0
         y = (b_0 * COS((b_1 * x) + b_2)) + b_3  # COSSENO  a * cos((b*x)*c)+d
         line.set_ydata(y)
         return line,
@@ -199,11 +208,11 @@ def plot_tg_dynamic(opt, animation_type):
             1: (frame / FRAME_DIV)}
         animation_step = possible_frame[animation_type]
         # print(animation_step) evita flood de dados no output do colab
-        x_signal = 'X positivo' if animation_type > 0 else 'X negativo'
+        x_signal = 'positivo' if animation_type > 0 else 'negativo'
         b_0 = animation_step if 1 in opt else 1
-        b_1 = animation_step if 2 in opt else 1
+        b_1 = animation_step/AUX_DIV if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
-        b_3 = animation_step if 4 in opt else 1
+        b_3 = animation_step if 4 in opt else 0
         y = (b_0 * TG((b_1 * x) + b_2)) + b_3  # TANGENTE  a * tg((b*x)*c)+d
         line.set_ydata(y)
         return line,
@@ -218,6 +227,7 @@ def plot_tg_dynamic(opt, animation_type):
     ani.save('animation.gif', writer=PillowWriter(fps=20))
     display(Image(filename='animation.gif'))
     plt.close(fig)
+
 
 def select_chart():
     """
@@ -250,6 +260,7 @@ def all_charts():
 
 def main():
     chart_names = ['Sen', 'Cos', 'Tg']
+    b_ = ['b_0','b_1','b_2','b_3']
     # selected_chart,chart_opt = select_chart()
     animation_type = ask_input(
         'Valores Positivos ou Negativos?',
@@ -259,7 +270,7 @@ def main():
 
     opt = ask_input(
         f'O que deseja analisar ?', # em {chart_names[chart_opt-1]}
-        '0 - Sair\n1 - Amplitude\n2 - Frequencia\n3 - Fase\n4 - Deslocamento Vertical\n\nPRESSIONE ENTER QUANDO TERMINAR DE ESCOLHER AS ANALISES\n\nDigite a opção: ',
+        '1 - Amplitude\n2 - Frequencia\n3 - Fase\n4 - Deslocamento Vertical\n\nPRESSIONE ENTER QUANDO TERMINAR DE ESCOLHER AS ANALISES\n\nDigite a opção: ',
         'Opção inválida, tente novamente.',
         [1, 2, 3, 4],
         True
