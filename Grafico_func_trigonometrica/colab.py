@@ -4,18 +4,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
-from IPython.display import Image, clear_output, display
+from IPython.display import Image, clear_output, display,HTML
 
 #####################################
-# b_0  Amplitude
-# b_1  Frequencia
-# b_2  Fase
-# b_3  Deslocamento Vertical
+# b_0 - Deslocamento Vertical
+# b_1 - Amplitude
+# b_2 - Frequencia
+# b_3 - Fase
 #####################################
 # Docs :
 # FuncAnimation :      https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html
 # subplots :           https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
-# Ultima alteração :   02-09-2024
+# Ultima alteração :   05-09-2024
 # Repo :               https://github.com/chEfInHO0/Projetos-Faculdade/tree/main/Grafico_func_trigonometrica
 #####################################
 
@@ -117,10 +117,10 @@ def label_chart(chart_name: str, opt: list):
     chart_name : Seno,Cosseno ou Tangente
     opt:
     """
-    labels = ["Amplitude(b_0) variando",
-              "Frequência(b_1) variando" if chart_name != 'Tg' else f"Frequência(b_1) variando (velocidade reduzida em {AUX_DIV}x)" ,
-              "Fase(b_2) variando",
-              "Deslocamento(b_3) vertical alterando"]
+    labels = ["Deslocamento Vertical(b_0) variando",
+              "Amplitude(b_1) variando" if chart_name != 'Tg' else f"Frequência(b_1) variando (velocidade reduzida em {AUX_DIV}x)" ,
+              "Frequencia(b_2) variando",
+              "Fase(b_3) alterando"]
     label_selected = f'{chart_name}: '
     for action in opt:
         label_selected += f'{labels[action-1]}, '
@@ -141,11 +141,11 @@ def plot_sin_dynamic(opt, animation_type):
         animation_step = possible_frame[animation_type]
         # print(animation_step) evita flood de dados no output do colab
         x_signal = 'positivo' if animation_type > 0 else 'negativo'
-        b_0 = animation_step if 1 in opt else 1
+        b_0 = animation_step if 1 in opt else 0
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
         b_3 = animation_step if 4 in opt else 0
-        y = (b_0 * SEN((b_1 * x) + b_2)) + b_3  # SENO  a * sen((b*x)*c)+d
+        y = b_0 + (b_1 * SEN((b_2 * x) + b_3)) # SENO  a * sen((b*x)*c)+d
         line.set_ydata(y)
         return line,
 
@@ -156,8 +156,8 @@ def plot_sin_dynamic(opt, animation_type):
         MIN_FRAMES, MAX_FRAMES), interval=INTERVAL, blit=True)
     label_selected = label_chart('Sen', opt)
     plt.title(f'{label_selected} {x_signal}')
-    ani.save('animation.gif', writer=PillowWriter(fps=20))
-    display(Image(filename='animation.gif'))
+    ani.save('animation_sen.gif', writer=PillowWriter(fps=20))
+    display(Image(filename='animation_sen.gif'))
     plt.close(fig)
 
 
@@ -175,11 +175,11 @@ def plot_cos_dynamic(opt, animation_type):
         animation_step = possible_frame[animation_type]
         # print(animation_step) evita flood de dados no output do colab
         x_signal = 'positivo' if animation_type > 0 else 'negativo'
-        b_0 = animation_step if 1 in opt else 1
+        b_0 = animation_step if 1 in opt else 0
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
         b_3 = animation_step if 4 in opt else 0
-        y = (b_0 * COS((b_1 * x) + b_2)) + b_3  # COSSENO  a * cos((b*x)*c)+d
+        y = b_0 + (b_1 * COS((b_2 * x) + b_3))  # COSSENO  a * cos((b*x)*c)+d
         line.set_ydata(y)
         return line,
 
@@ -190,10 +190,9 @@ def plot_cos_dynamic(opt, animation_type):
         MIN_FRAMES, MAX_FRAMES), interval=INTERVAL, blit=True)
     label_selected = label_chart('Cos', opt)
     plt.title(f'{label_selected} {x_signal}')
-    ani.save('animation.gif', writer=PillowWriter(fps=20))
-    display(Image(filename='animation.gif'))
+    ani.save('animation_cos.gif', writer=PillowWriter(fps=20))
+    display(Image(filename='animation_cos.gif'))
     plt.close(fig)
-
 
 def plot_tg_dynamic(opt, animation_type):
     """
@@ -209,11 +208,11 @@ def plot_tg_dynamic(opt, animation_type):
         animation_step = possible_frame[animation_type]
         # print(animation_step) evita flood de dados no output do colab
         x_signal = 'positivo' if animation_type > 0 else 'negativo'
-        b_0 = animation_step if 1 in opt else 1
-        b_1 = animation_step/AUX_DIV if 2 in opt else 1
+        b_0 = animation_step if 1 in opt else 0
+        b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
         b_3 = animation_step if 4 in opt else 0
-        y = (b_0 * TG((b_1 * x) + b_2)) + b_3  # TANGENTE  a * tg((b*x)*c)+d
+        y = b_0 + (b_1 * TG((b_2 * x) + b_3)) # TANGENTE  a * tg((b*x)*c)+d
         line.set_ydata(y)
         return line,
 
@@ -224,10 +223,9 @@ def plot_tg_dynamic(opt, animation_type):
         MIN_FRAMES, MAX_FRAMES), interval=INTERVAL, blit=True)
     label_selected = label_chart('Tg', opt)
     plt.title(f'{label_selected} {x_signal}')
-    ani.save('animation.gif', writer=PillowWriter(fps=20))
-    display(Image(filename='animation.gif'))
+    ani.save('animation_tg.gif', writer=PillowWriter(fps=20))
+    display(Image(filename='animation_tg.gif'))
     plt.close(fig)
-
 
 def select_chart():
     """
@@ -245,7 +243,6 @@ def select_chart():
                          )
     return [chart[chart_opt], chart_opt]
 
-
 def all_charts():
     """
     Retorna uma função e valor correspondente ao nome da função trigonometrica
@@ -256,7 +253,6 @@ def all_charts():
         3: plot_tg_dynamic
     }
     return [chart[1],chart[2],chart[3]]
-
 
 def main():
     chart_names = ['Sen', 'Cos', 'Tg']
@@ -270,7 +266,7 @@ def main():
 
     opt = ask_input(
         f'O que deseja analisar ?', # em {chart_names[chart_opt-1]}
-        '1 - Amplitude\n2 - Frequencia\n3 - Fase\n4 - Deslocamento Vertical\n\nPRESSIONE ENTER QUANDO TERMINAR DE ESCOLHER AS ANALISES\n\nDigite a opção: ',
+        '1 - Deslocamento Vertical\n2 - Amplitude\n3 - Frequencia\n4 - Fase\n\nPRESSIONE ENTER QUANDO TERMINAR DE ESCOLHER AS ANALISES\n\nDigite a opção: ',
         'Opção inválida, tente novamente.',
         [1, 2, 3, 4],
         True

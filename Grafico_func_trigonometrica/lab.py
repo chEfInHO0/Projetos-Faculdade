@@ -5,15 +5,16 @@ from subprocess import run #type:ignore
 from IPython.display import Image, clear_output
 
 #####################################
-# b_0  Amplitude
-# b_1  Frequencia
-# b_2  Fase
-# b_3  Deslocamento Vertical
+# b_0 - Deslocamento Vertical
+# b_1 - Amplitude
+# b_2 - Frequencia
+# b_3 - Fase
 #####################################
 # Docs :
 # FuncAnimation :      https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html
 # subplots :           https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
-# Ultima alteração :   02-09-2024
+# Ultima alteração :   05-09-2024
+# Repo :               https://github.com/chEfInHO0/Projetos-Faculdade/tree/main/Grafico_func_trigonometrica
 #####################################
 
 global animation_frame, x_signal
@@ -30,16 +31,22 @@ MIN_FRAMES = 1          # Minimo 1, deve ser menor que MAX_FRAMES
 MAX_FRAMES = 150        # Quanto maior, mais tempo a animação 
 INTERVAL = 25           # intervalo de atualização de um frame a outro (Recomendado: Max 50)
 FRAME_DIV = 10          # FRAME_DIV deve ser superior a 0, diminui a velocidade da animação que usa o frame para mudar o valor (Melhor performance)
+AUX_DIV = 5             # No caso da tangente o gráfico pode ficar bem inviável para a visualização então vamos adicionar uma variavel extra para controle
+
 
 PI,SEN,COS,TG = np.pi, np.sin, np.cos, np.tan # declarando as constantes trigonométricas
 
 SLICES = 5000           # Não aumentar
+
 FIG_X_SIZE = 10         # tamanho do gráfico plotado
 FIG_Y_SIZE = 5          # tamanho do gráfico plotado
+
 MIN_LINSPACE = -10 * PI # Inicio do domínio
 MAX_LINSPACE = 10 * PI  # Final do domínio
+
 MIN_X_LIM = -2 * PI     # Inicio do grafico do eixo X
 MAX_X_LIM = 2 * PI      # Final do grafico do eixo X
+
 MIN_Y_LIM = -40         # Inicio do grafico do eixo Y
 MAX_Y_LIM = 40          # Final do grafico do eixo Y
 
@@ -110,10 +117,10 @@ def label_chart(chart_name: str, opt: list):
     chart_name : Seno,Cosseno ou Tangente
     opt:
     """
-    labels = ["Amplitude variando",
-              "Frequência variando",
-              "Fase variando",
-              "Deslocamento vertical alterando"]
+    labels = ["Deslocamento Vertical(b_0) variando",
+              "Amplitude(b_1) variando" if chart_name != 'Tg' else f"Frequência(b_1) variando (velocidade reduzida em {AUX_DIV}x)" ,
+              "Frequencia(b_2) variando",
+              "Fase(b_3) alterando"]
     label_selected = f'{chart_name}: '
     for action in opt:
         label_selected += f'{labels[action-1]}, '
@@ -134,12 +141,12 @@ def plot_sin_dynamic(opt, animation_type):
             1: (frame / FRAME_DIV)}
         animation_step = possible_frame[animation_type]
         print(animation_step)
-        x_signal = 'X positivo' if animation_type > 0 else 'X negativo'
-        b_0 = animation_step if 1 in opt else 1
+        x_signal = 'positivo' if animation_type > 0 else 'negativo'
+        b_0 = animation_step if 1 in opt else 0
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
-        b_3 = animation_step if 4 in opt else 1
-        y = (b_0 * SEN((b_1 * x) + b_2)) + b_3  # SENO  a * sen((b*x)*c)+d
+        b_3 = animation_step if 4 in opt else 0
+        y = b_0 + (b_1 * SEN((b_2 * x) + b_3))  # SENO  a * sen((b*x)*c)+d
         line.set_ydata(y)
         return line,
 
@@ -152,6 +159,8 @@ def plot_sin_dynamic(opt, animation_type):
     plt.title(f'{label_selected} {x_signal}')
     plt.show()
     ani.save('animation.gif', writer=PillowWriter(fps=20))
+    Image(filename='animation.gif')
+    plt.close(fig)
 
 
 def plot_cos_dynamic(opt, animation_type):
@@ -167,12 +176,12 @@ def plot_cos_dynamic(opt, animation_type):
             1: (frame / FRAME_DIV)}
         animation_step = possible_frame[animation_type]
         print(animation_step)
-        x_signal = 'X positivo' if animation_type > 0 else 'X negativo'
-        b_0 = animation_step if 1 in opt else 1
+        x_signal = 'positivo' if animation_type > 0 else 'negativo'
+        b_0 = animation_step if 1 in opt else 0
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
-        b_3 = animation_step if 4 in opt else 1
-        y = (b_0 * COS((b_1 * x) + b_2)) + b_3  # COSSENO  a * cos((b*x)*c)+d
+        b_3 = animation_step if 4 in opt else 0
+        y = b_0 + (b_1 * COS((b_2 * x) + b_3))  # COSSENO  a * cos((b*x)*c)+d
         line.set_ydata(y)
         return line,
 
@@ -185,6 +194,8 @@ def plot_cos_dynamic(opt, animation_type):
     plt.title(f'{label_selected} {x_signal}')
     plt.show()
     ani.save('animation.gif', writer=PillowWriter(fps=20))
+    Image(filename='animation.gif')
+    plt.close(fig)
 
 
 def plot_tg_dynamic(opt, animation_type):
@@ -200,12 +211,12 @@ def plot_tg_dynamic(opt, animation_type):
             1: (frame / FRAME_DIV)}
         animation_step = possible_frame[animation_type]
         print(animation_step)
-        x_signal = 'X positivo' if animation_type > 0 else 'X negativo'
-        b_0 = animation_step if 1 in opt else 1
+        x_signal = 'positivo' if animation_type > 0 else 'negativo'
+        b_0 = animation_step if 1 in opt else 0
         b_1 = animation_step if 2 in opt else 1
         b_2 = animation_step if 3 in opt else 1
-        b_3 = animation_step if 4 in opt else 1
-        y = (b_0 * TG((b_1 * x) + b_2)) + b_3  # TANGENTE  a * tg((b*x)*c)+d
+        b_3 = animation_step if 4 in opt else 0
+        y = b_0 + (b_1 * TG((b_2 * x) + b_3)) # TANGENTE  a * tg((b*x)*c)+d
         line.set_ydata(y)
         return line,
 
@@ -218,6 +229,8 @@ def plot_tg_dynamic(opt, animation_type):
     plt.title(f'{label_selected} {x_signal}')
     plt.show()
     ani.save('animation.gif', writer=PillowWriter(fps=20))
+    Image(filename='animation.gif')
+    plt.close(fig)
 
 
 def select_chart():
@@ -247,15 +260,14 @@ def main():
             [0, 1])
 
         opt = ask_input(
-            f'O que deseja analisar em {chart_names[chart_opt-1]}?',
-            '0 - Sair\n1 - Amplitude\n2 - Frequencia\n3 - Fase\n4 - Deslocamento Vertical\n\nPRESSIONE ENTER QUANDO TERMINAR DE ESCOLHER AS ANALISES\n\nDigite a opção: ',
-            'Opção inválida, tente novamente.',
-            [1, 2, 3, 4],
-            True
-        )
+        f'O que deseja analisar ?', # em {chart_names[chart_opt-1]}
+        '1 - Deslocamento Vertical\n2 - Amplitude\n3 - Frequencia\n4 - Fase\n\nPRESSIONE ENTER QUANDO TERMINAR DE ESCOLHER AS ANALISES\n\nDigite a opção: ',
+        'Opção inválida, tente novamente.',
+        [1, 2, 3, 4],
+        True
+    )
         run(['cmd', '/c', 'cls'])
         selected_chart(opt, animation_type)
-        Image(filename='animation.gif')
 
 
 if __name__ == "__main__":
